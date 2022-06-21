@@ -11,7 +11,8 @@ where
     println!("from_str");
     let value = serde_json::from_str(data.as_ref()).unwrap();
 
-    // Also deserialize the string as an std::io::Reader to ensure we aren't making any assumptions about borrowing input
+    // Also deserialize the string as an std::io::Reader to ensure we aren't making any assumptions about borrowing
+    // input
     println!("from_reader");
     let _: T = serde_json::from_reader(data.as_ref().as_bytes()).unwrap();
 
@@ -83,10 +84,7 @@ fn test_public_user() {
     let user: PublicUser = deserialize(json_str);
     // This also makes sure user IDs can have other characters, such as
     // underscores.
-    assert_eq!(
-        user.id,
-        UserId::from_id("wizzler_with_underscores").unwrap()
-    );
+    assert_eq!(user.id, UserId::from_id("wizzler_with_underscores").unwrap());
 }
 
 #[test]
@@ -191,10 +189,7 @@ fn test_simplified_episode() {
         }
         "#;
     let simplified_episode: SimplifiedEpisode = deserialize(json_str);
-    assert_eq!(
-        simplified_episode.release_date_precision,
-        DatePrecision::Day
-    );
+    assert_eq!(simplified_episode.release_date_precision, DatePrecision::Day);
     let duration = Duration::from_millis(2685023);
     assert_eq!(simplified_episode.duration, duration);
 }
@@ -731,10 +726,7 @@ fn test_currently_playing_context() {
     let timestamp = 1607769168429;
     let second: i64 = (timestamp - timestamp % 1000) / 1000;
     let nanosecond = (timestamp % 1000) * 1000000;
-    let dt = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(second, nanosecond as u32),
-        Utc,
-    );
+    let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(second, nanosecond as u32), Utc);
     assert_eq!(currently_playing_context.timestamp, dt);
 
     let duration = Duration::from_millis(22270);
@@ -846,10 +838,7 @@ fn test_current_playback_context() {
     let timestamp = 1607774342714;
     let second: i64 = (timestamp - timestamp % 1000) / 1000;
     let nanosecond = (timestamp % 1000) * 1000000;
-    let dt = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(second, nanosecond as u32),
-        Utc,
-    );
+    let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(second, nanosecond as u32), Utc);
     assert_eq!(current_playback_context.timestamp, dt);
     assert!(current_playback_context.progress.is_none());
 }

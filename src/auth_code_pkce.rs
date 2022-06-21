@@ -8,8 +8,7 @@ use crate::{
     ClientResult, Config, Credentials, OAuth, Token,
 };
 
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use maybe_async::maybe_async;
 use sha2::{Digest, Sha256};
@@ -38,7 +37,7 @@ pub struct AuthCodePkceSpotify {
     pub token: Arc<Mutex<Option<Token>>>,
     /// The code verifier for the authentication process
     pub verifier: Option<String>,
-    pub(in crate) http: HttpClient,
+    pub(crate) http: HttpClient,
 }
 
 /// This client has access to the base methods.
@@ -94,9 +93,7 @@ impl OAuthClient for AuthCodePkceSpotify {
         log::info!("Requesting PKCE Auth Code token");
 
         let verifier = self.verifier.as_ref().expect(
-            "Unknown code verifier. Try calling \
-            `AuthCodePkceSpotify::get_authorize_url` first or setting it \
-            yourself.",
+            "Unknown code verifier. Try calling `AuthCodePkceSpotify::get_authorize_url` first or setting it yourself.",
         );
 
         let mut data = Form::new();
@@ -192,10 +189,7 @@ impl AuthCodePkceSpotify {
         payload.insert(params::CLIENT_ID, &self.creds.id);
         payload.insert(params::RESPONSE_TYPE, params::RESPONSE_TYPE_CODE);
         payload.insert(params::REDIRECT_URI, &self.oauth.redirect_uri);
-        payload.insert(
-            params::CODE_CHALLENGE_METHOD,
-            params::CODE_CHALLENGE_METHOD_S256,
-        );
+        payload.insert(params::CODE_CHALLENGE_METHOD, params::CODE_CHALLENGE_METHOD_S256);
         payload.insert(params::CODE_CHALLENGE, &challenge);
         payload.insert(params::STATE, &self.oauth.state);
         payload.insert(params::SCOPE, &scopes);

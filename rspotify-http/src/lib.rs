@@ -31,13 +31,11 @@ pub use common::{BaseHttpClient, Form, Headers, Query};
 
 #[cfg(all(feature = "client-reqwest", feature = "client-ureq"))]
 compile_error!(
-    "`client-reqwest` and `client-ureq` features cannot both be enabled at \
-    the same time, if you want to use `client-ureq` you need to set \
-    `default-features = false`"
+    "`client-reqwest` and `client-ureq` features cannot both be enabled at the same time, if you want to use \
+     `client-ureq` you need to set `default-features = false`"
 );
 
 #[cfg(not(any(feature = "client-reqwest", feature = "client-ureq")))]
 compile_error!(
-    "You have to enable at least one of the available clients with the \
-    `client-reqwest` or `client-ureq` features."
+    "You have to enable at least one of the available clients with the `client-reqwest` or `client-ureq` features."
 );

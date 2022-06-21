@@ -10,12 +10,12 @@ use crate::ClientResult;
 use serde::Deserialize;
 
 /// Converts a JSON response from Spotify into its model.
-pub(in crate) fn convert_result<'a, T: Deserialize<'a>>(input: &'a str) -> ClientResult<T> {
+pub(crate) fn convert_result<'a, T: Deserialize<'a>>(input: &'a str) -> ClientResult<T> {
     serde_json::from_str::<T>(input).map_err(Into::into)
 }
 
 /// Append device ID to an API path.
-pub(in crate) fn append_device_id(path: &str, device_id: Option<&str>) -> String {
+pub(crate) fn append_device_id(path: &str, device_id: Option<&str>) -> String {
     let mut new_path = path.to_string();
     if let Some(_device_id) = device_id {
         if path.contains('?') {
@@ -46,10 +46,7 @@ mod test {
         let path = "me/player/shuffle?state=true";
         let device_id = Some("fdafdsadfa");
         let new_path = append_device_id(path, device_id);
-        assert_eq!(
-            new_path,
-            "me/player/shuffle?state=true&device_id=fdafdsadfa"
-        );
+        assert_eq!(new_path, "me/player/shuffle?state=true&device_id=fdafdsadfa");
     }
 
     #[test]

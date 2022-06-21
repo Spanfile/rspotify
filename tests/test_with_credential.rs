@@ -12,9 +12,8 @@ pub async fn creds_client() -> ClientCredsSpotify {
     // The credentials must be available in the environment.
     let creds = Credentials::from_env().unwrap_or_else(|| {
         panic!(
-            "No credentials configured. Make sure that either the `env-file` \
-            feature is enabled, or that the required environment variables are \
-            exported (`RSPOTIFY_CLIENT_ID`, `RSPOTIFY_CLIENT_SECRET`)"
+            "No credentials configured. Make sure that either the `env-file` feature is enabled, or that the required \
+             environment variables are exported (`RSPOTIFY_CLIENT_ID`, `RSPOTIFY_CLIENT_SECRET`)"
         )
     });
 
@@ -52,11 +51,7 @@ async fn test_album_tracks() {
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 async fn test_artist_related_artists() {
     let birdy_uri = ArtistId::from_uri("spotify:artist:43ZHCT0cAZBISjO8DG9PnE").unwrap();
-    creds_client()
-        .await
-        .artist_related_artists(&birdy_uri)
-        .await
-        .unwrap();
+    creds_client().await.artist_related_artists(&birdy_uri).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -119,11 +114,7 @@ async fn test_audios_features() {
     tracks_ids.push(track_id1);
     let track_id2 = TrackId::from_uri("spotify:track:24JygzOLM0EmRQeGtFcIcG").unwrap();
     tracks_ids.push(track_id2);
-    creds_client()
-        .await
-        .tracks_features(&tracks_ids)
-        .await
-        .unwrap();
+    creds_client().await.tracks_features(&tracks_ids).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -150,20 +141,13 @@ async fn test_tracks() {
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 async fn test_existing_playlist() {
     let playlist_id = PlaylistId::from_id("37i9dQZF1DZ06evO45P0Eo").unwrap();
-    creds_client()
-        .await
-        .playlist(&playlist_id, None, None)
-        .await
-        .unwrap();
+    creds_client().await.playlist(&playlist_id, None, None).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 async fn test_fake_playlist() {
     let playlist_id = PlaylistId::from_id("fakeid").unwrap();
-    let playlist = creds_client()
-        .await
-        .playlist(&playlist_id, None, None)
-        .await;
+    let playlist = creds_client().await.playlist(&playlist_id, None, None).await;
     assert!(playlist.is_err());
 }
 

@@ -1,8 +1,5 @@
-use chrono::prelude::*;
-use chrono::Duration;
-use rspotify::{
-    prelude::*, scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
-};
+use chrono::{prelude::*, Duration};
+use rspotify::{prelude::*, scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token};
 use std::{collections::HashMap, fs, io::Read, path::PathBuf};
 use url::Url;
 
@@ -19,11 +16,7 @@ fn test_get_authorize_url() {
     let spotify = AuthCodeSpotify::new(creds, oauth);
 
     let authorize_url = spotify.get_authorize_url(false).unwrap();
-    let hash_query: HashMap<_, _> = Url::parse(&authorize_url)
-        .unwrap()
-        .query_pairs()
-        .into_owned()
-        .collect();
+    let hash_query: HashMap<_, _> = Url::parse(&authorize_url).unwrap().query_pairs().into_owned().collect();
 
     assert_eq!(hash_query.get("client_id").unwrap(), "this-is-my-client-id");
     assert_eq!(hash_query.get("response_type").unwrap(), "code");

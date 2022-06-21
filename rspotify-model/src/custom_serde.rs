@@ -56,10 +56,7 @@ pub mod millisecond_timestamp {
         type Value = DateTime<Utc>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            write!(
-                formatter,
-                "an unix millisecond timestamp represents DataTime<UTC>"
-            )
+            write!(formatter, "an unix millisecond timestamp represents DataTime<UTC>")
         }
 
         fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
@@ -70,10 +67,7 @@ pub mod millisecond_timestamp {
             let nanosecond = ((v % 1000) * 1000000) as u32;
             // The maximum value of i64 is large enough to hold milliseconds,
             // so it would be safe to convert it i64.
-            let dt = DateTime::<Utc>::from_utc(
-                NaiveDateTime::from_timestamp(second as i64, nanosecond),
-                Utc,
-            );
+            let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(second as i64, nanosecond), Utc);
             Ok(dt)
         }
     }
@@ -108,10 +102,7 @@ pub mod option_duration_ms {
         type Value = Option<Duration>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            write!(
-                formatter,
-                "a optional milliseconds represents std::time::Duration"
-            )
+            write!(formatter, "a optional milliseconds represents std::time::Duration")
         }
 
         fn visit_none<E>(self) -> Result<Self::Value, E>
@@ -125,9 +116,7 @@ pub mod option_duration_ms {
         where
             D: de::Deserializer<'de>,
         {
-            Ok(Some(
-                deserializer.deserialize_u64(duration_ms::DurationVisitor)?,
-            ))
+            Ok(Some(deserializer.deserialize_u64(duration_ms::DurationVisitor)?))
         }
     }
 

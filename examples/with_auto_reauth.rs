@@ -3,11 +3,11 @@
 //! Spotify server, it will check whether the token is expired and automatically
 //! re-authenticate by refresh_token if set `Token.token_refreshing` to true.
 
-use chrono::offset::Utc;
-use chrono::Duration;
+use chrono::{offset::Utc, Duration};
 use rspotify::{
-    model::AlbumId, model::ArtistId, prelude::*, scopes, AuthCodeSpotify, ClientCredsSpotify,
-    Config, Credentials, OAuth,
+    model::{AlbumId, ArtistId},
+    prelude::*,
+    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth,
 };
 
 // Sample request that will follow some artists, print the user's
@@ -29,10 +29,7 @@ async fn auth_code_do_things(spotify: &AuthCodeSpotify) {
         .current_user_followed_artists(None, None)
         .await
         .expect("couldn't get user followed artists");
-    println!(
-        "User currently follows at least {} artists.",
-        followed.items.len()
-    );
+    println!("User currently follows at least {} artists.", followed.items.len());
 
     spotify
         .user_unfollow_artists(artists)

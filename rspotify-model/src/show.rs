@@ -1,11 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
-use crate::{
-    custom_serde::duration_ms, CopyrightType, DatePrecision, EpisodeId, Image, Page, ShowId,
-};
+use crate::{custom_serde::duration_ms, CopyrightType, DatePrecision, EpisodeId, Image, Page, ShowId};
 
 /// Copyright object
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -79,9 +76,10 @@ pub struct SimplifiedEpisode {
     pub images: Vec<Image>,
     pub is_externally_hosted: bool,
     pub is_playable: bool,
-    #[deprecated(note = "This `language` field is deprecated and might be \
-        removed in the future by Spotify. Please use the languages field \
-        instead")]
+    #[deprecated(
+        note = "This `language` field is deprecated and might be removed in the future by Spotify. Please use the \
+                languages field instead"
+    )]
     pub language: String,
     pub languages: Vec<String>,
     pub name: String,
@@ -104,9 +102,10 @@ pub struct FullEpisode {
     pub images: Vec<Image>,
     pub is_externally_hosted: bool,
     pub is_playable: bool,
-    #[deprecated(note = "This `language` field is deprecated and might be \
-        removed in the future by Spotify. Please use the languages field \
-        instead")]
+    #[deprecated(
+        note = "This `language` field is deprecated and might be removed in the future by Spotify. Please use the \
+                languages field instead"
+    )]
     pub language: String,
     pub languages: Vec<String>,
     pub name: String,

@@ -22,7 +22,8 @@
 //! ```
 //! use rspotify_model::{Id, TrackId};
 //!
-//! fn pause_track(id: &TrackId) { /* ... */ }
+//! fn pause_track(id: &TrackId) { /* ... */
+//! }
 //!
 //! let id = TrackId::from_id("4iV5W9uYEdYUVa79Axb7Rh").unwrap();
 //! pause_track(&id);
@@ -46,7 +47,8 @@
 //! ```should_panic
 //! use rspotify_model::{Id, TrackId};
 //!
-//! fn pause_track(id: &TrackId) { /* ... */ }
+//! fn pause_track(id: &TrackId) { /* ... */
+//! }
 //!
 //! let id = TrackId::from_uri("spotify:album:6akEvsycLGftJxYudPjmqK").unwrap();
 //! pause_track(&id);
@@ -56,11 +58,14 @@
 //! types:
 //!
 //! ```
-//! use rspotify_model::{Id, TrackId, EpisodeId, PlayableId};
+//! use rspotify_model::{EpisodeId, Id, PlayableId, TrackId};
 //!
-//! fn track(id: &TrackId) { /* ... */ }
-//! fn episode(id: &EpisodeId) { /* ... */ }
-//! fn add_to_queue(id: &[&dyn PlayableId]) { /* ... */ }
+//! fn track(id: &TrackId) { /* ... */
+//! }
+//! fn episode(id: &EpisodeId) { /* ... */
+//! }
+//! fn add_to_queue(id: &[&dyn PlayableId]) { /* ... */
+//! }
 //!
 //! let tracks = &[
 //!     TrackId::from_uri("spotify:track:4iV5W9uYEdYUVa79Axb7Rh").unwrap(),
@@ -81,9 +86,7 @@
 //! let playable = tracks
 //!     .iter()
 //!     .map(|id| id as &dyn PlayableId)
-//!     .chain(
-//!         episodes.iter().map(|id| id as &dyn PlayableId)
-//!     )
+//!     .chain(episodes.iter().map(|id| id as &dyn PlayableId))
 //!     .collect::<Vec<&dyn PlayableId>>();
 //! add_to_queue(&playable);
 //! ```
@@ -92,8 +95,7 @@ use serde::{Deserialize, Serialize};
 use strum::Display;
 use thiserror::Error;
 
-use std::fmt::Debug;
-use std::hash::Hash;
+use std::{fmt::Debug, hash::Hash};
 
 use crate::Type;
 
@@ -199,21 +201,15 @@ pub trait Id: Send + Sync {
     ///
     /// # Errors:
     ///
-    /// - `IdError::InvalidPrefix` - if `uri` is not started with `spotify:`
-    ///    or `spotify/`,
-    /// - `IdError::InvalidType` - if type part of an `uri` is not a valid
-    ///    Spotify type `T`,
+    /// - `IdError::InvalidPrefix` - if `uri` is not started with `spotify:` or `spotify/`,
+    /// - `IdError::InvalidType` - if type part of an `uri` is not a valid Spotify type `T`,
     /// - `IdError::InvalidId` - if id part of an `uri` is not a valid id,
-    /// - `IdError::InvalidFormat` - if it can't be splitted into type and
-    ///    id parts.
+    /// - `IdError::InvalidFormat` - if it can't be splitted into type and id parts.
     fn from_uri(uri: &str) -> Result<Self, IdError>
     where
         Self: Sized,
     {
-        let mut chars = uri
-            .strip_prefix("spotify")
-            .ok_or(IdError::InvalidPrefix)?
-            .chars();
+        let mut chars = uri.strip_prefix("spotify").ok_or(IdError::InvalidPrefix)?.chars();
         let sep = match chars.next() {
             Some(ch) if ch == '/' || ch == ':' => ch,
             _ => return Err(IdError::InvalidPrefix),
@@ -251,13 +247,10 @@ pub trait Id: Send + Sync {
     ///
     /// # Errors:
     ///
-    /// - `IdError::InvalidType` - if `id_or_uri` is an URI, and it's type part
-    ///    is not equal to `T`,
-    /// - `IdError::InvalidId` - either if `id_or_uri` is an URI with invalid id
-    ///    part, or it's an invalid id (id is invalid if it contains valid
-    ///    characters),
-    /// - `IdError::InvalidFormat` - if `id_or_uri` is an URI, and it can't be
-    ///    split into type and id parts.
+    /// - `IdError::InvalidType` - if `id_or_uri` is an URI, and it's type part is not equal to `T`,
+    /// - `IdError::InvalidId` - either if `id_or_uri` is an URI with invalid id part, or it's an invalid id (id is
+    ///   invalid if it contains valid characters),
+    /// - `IdError::InvalidFormat` - if `id_or_uri` is an URI, and it can't be split into type and id parts.
     fn from_id_or_uri(id_or_uri: &str) -> Result<Self, IdError>
     where
         Self: Sized,
@@ -275,8 +268,7 @@ pub trait PlayContextId: Id {}
 
 /// This macro helps consistently define ID types.
 ///
-/// * The `$type` parameter indicates what type the ID is made out of (say,
-///   `Artist`, `Album`...) from the enum `Type`.
+/// * The `$type` parameter indicates what type the ID is made out of (say, `Artist`, `Album`...) from the enum `Type`.
 /// * The `$name` parameter is the identifier of the struct for that type.
 macro_rules! define_idtypes {
     ($($type:ident => $name:ident),+) => {

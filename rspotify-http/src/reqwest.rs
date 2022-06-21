@@ -17,7 +17,7 @@ use serde_json::Value;
 /// ```
 /// # #[tokio::main]
 /// # async fn main() {
-/// use rspotify_http::{HttpError, HttpClient, BaseHttpClient};
+/// use rspotify_http::{BaseHttpClient, HttpClient, HttpError};
 ///
 /// let client = HttpClient::default();
 /// let response = client.get("wrongurl", None, &Default::default()).await;
@@ -30,7 +30,7 @@ use serde_json::Value;
 ///             Ok(api_error) => eprintln!("status code {}: {:?}", code, api_error),
 ///             Err(_) => eprintln!("status code {}", code),
 ///         }
-///     },
+///     }
 /// }
 /// # }
 /// ```
@@ -102,25 +102,13 @@ impl BaseHttpClient for ReqwestClient {
     type Error = ReqwestError;
 
     #[inline]
-    async fn get(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Query,
-    ) -> Result<String, Self::Error> {
-        self.request(Method::GET, url, headers, |req| req.query(payload))
-            .await
+    async fn get(&self, url: &str, headers: Option<&Headers>, payload: &Query) -> Result<String, Self::Error> {
+        self.request(Method::GET, url, headers, |req| req.query(payload)).await
     }
 
     #[inline]
-    async fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
-        self.request(Method::POST, url, headers, |req| req.json(payload))
-            .await
+    async fn post(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
+        self.request(Method::POST, url, headers, |req| req.json(payload)).await
     }
 
     #[inline]
@@ -130,28 +118,16 @@ impl BaseHttpClient for ReqwestClient {
         headers: Option<&Headers>,
         payload: &Form<'a>,
     ) -> Result<String, Self::Error> {
-        self.request(Method::POST, url, headers, |req| req.form(payload))
-            .await
+        self.request(Method::POST, url, headers, |req| req.form(payload)).await
     }
 
     #[inline]
-    async fn put(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
-        self.request(Method::PUT, url, headers, |req| req.json(payload))
-            .await
+    async fn put(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
+        self.request(Method::PUT, url, headers, |req| req.json(payload)).await
     }
 
     #[inline]
-    async fn delete(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
+    async fn delete(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
         self.request(Method::DELETE, url, headers, |req| req.json(payload))
             .await
     }

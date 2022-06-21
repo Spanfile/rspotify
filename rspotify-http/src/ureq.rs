@@ -14,7 +14,7 @@ use ureq::{Request, Response};
 /// Sample usage:
 ///
 /// ```
-/// use rspotify_http::{HttpError, HttpClient, BaseHttpClient};
+/// use rspotify_http::{BaseHttpClient, HttpClient, HttpError};
 ///
 /// let client = HttpClient::default();
 /// let response = client.get("wrongurl", None, &Default::default());
@@ -28,7 +28,7 @@ use ureq::{Request, Response};
 ///             Ok(api_error) => eprintln!("status code {}: {:?}", code, api_error),
 ///             Err(_) => eprintln!("status code {}", code),
 ///         }
-///     },
+///     }
 /// }
 /// ```
 #[derive(thiserror::Error, Debug)]
@@ -56,18 +56,10 @@ pub struct UreqClient {}
 impl UreqClient {
     /// The request handling in ureq is split in three parts:
     ///
-    /// * The initial request (POST, GET, ...) is given as the `request`
-    ///   parameter.
-    /// * This method will add whichever headers and additional data is needed
-    ///   for all requests.
-    /// * The request is finished and performed with the `send_request` function
-    ///   (JSON, a form...).
-    fn request<D>(
-        &self,
-        mut request: Request,
-        headers: Option<&Headers>,
-        send_request: D,
-    ) -> Result<String, UreqError>
+    /// * The initial request (POST, GET, ...) is given as the `request` parameter.
+    /// * This method will add whichever headers and additional data is needed for all requests.
+    /// * The request is finished and performed with the `send_request` function (JSON, a form...).
+    fn request<D>(&self, mut request: Request, headers: Option<&Headers>, send_request: D) -> Result<String, UreqError>
     where
         D: Fn(Request) -> Result<Response, ureq::Error>,
     {
@@ -95,12 +87,7 @@ impl BaseHttpClient for UreqClient {
     type Error = UreqError;
 
     #[inline]
-    fn get(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Query,
-    ) -> Result<String, Self::Error> {
+    fn get(&self, url: &str, headers: Option<&Headers>, payload: &Query) -> Result<String, Self::Error> {
         let request = ureq::get(url);
         let sender = |mut req: Request| {
             for (key, val) in payload.iter() {
@@ -112,30 +99,17 @@ impl BaseHttpClient for UreqClient {
     }
 
     #[inline]
-    fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
+    fn post(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
         let request = ureq::post(url);
         let sender = |req: Request| req.send_json(payload.clone());
         self.request(request, headers, sender)
     }
 
     #[inline]
-    fn post_form<'a>(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Form<'a>,
-    ) -> Result<String, Self::Error> {
+    fn post_form<'a>(&self, url: &str, headers: Option<&Headers>, payload: &Form<'a>) -> Result<String, Self::Error> {
         let request = ureq::post(url);
         let sender = |req: Request| {
-            let payload = payload
-                .iter()
-                .map(|(key, val)| (*key, *val))
-                .collect::<Vec<_>>();
+            let payload = payload.iter().map(|(key, val)| (*key, *val)).collect::<Vec<_>>();
 
             req.send_form(&payload)
         };
@@ -144,24 +118,14 @@ impl BaseHttpClient for UreqClient {
     }
 
     #[inline]
-    fn put(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
+    fn put(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
         let request = ureq::put(url);
         let sender = |req: Request| req.send_json(payload.clone());
         self.request(request, headers, sender)
     }
 
     #[inline]
-    fn delete(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error> {
+    fn delete(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error> {
         let request = ureq::delete(url);
         let sender = |req: Request| req.send_json(payload.clone());
         self.request(request, headers, sender)

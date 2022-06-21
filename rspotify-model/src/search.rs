@@ -2,10 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    FullArtist, FullTrack, Page, SimplifiedAlbum, SimplifiedEpisode, SimplifiedPlaylist,
-    SimplifiedShow,
-};
+use crate::{FullArtist, FullTrack, Page, SimplifiedAlbum, SimplifiedEpisode, SimplifiedPlaylist, SimplifiedShow};
 
 /// Search for playlists
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -20,7 +17,6 @@ pub struct SearchAlbums {
 }
 
 /// Search for artists
-///
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SearchArtists {
     pub artists: Page<FullArtist>,

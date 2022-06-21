@@ -10,10 +10,7 @@ use futures::{future::Future, stream::Stream};
 pub type Paginator<'a, T> = Pin<Box<dyn Stream<Item = T> + 'a>>;
 
 /// This is used to handle paginated requests automatically.
-pub fn paginate<'a, T: 'a, Fut, Request: 'a>(
-    req: Request,
-    page_size: u32,
-) -> Paginator<'a, ClientResult<T>>
+pub fn paginate<'a, T: 'a, Fut, Request: 'a>(req: Request, page_size: u32) -> Paginator<'a, ClientResult<T>>
 where
     T: Unpin,
     Fut: Future<Output = ClientResult<Page<T>>>,

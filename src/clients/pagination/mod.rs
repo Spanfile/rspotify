@@ -5,8 +5,8 @@
 //! All implementations export:
 //!
 //! * A `Paginator` struct which wraps the iterable of items
-//! * A `paginate` function, which returns a `Paginator` based on a request that
-//!   may be repeated in order to return a continuous sequence of `Page`s
+//! * A `paginate` function, which returns a `Paginator` based on a request that may be repeated in order to return a
+//!   continuous sequence of `Page`s
 //!
 //! Note that `Paginator` should actually be a trait so that a dynamic
 //! allocation can be avoided when returning it with `-> impl Iterator<T>`, as

@@ -36,10 +36,7 @@ async fn do_things(spotify: AuthCodeSpotify) {
         .current_user_followed_artists(None, None)
         .await
         .expect("couldn't get user followed artists");
-    println!(
-        "User currently follows at least {} artists.",
-        followed.items.len()
-    );
+    println!("User currently follows at least {} artists.", followed.items.len());
 
     spotify
         .user_unfollow_artists(artists)
@@ -79,10 +76,7 @@ async fn main() {
     let spotify = AuthCodeSpotify::new(creds.clone(), oauth.clone());
     *spotify.token.lock().await.unwrap() = prev_token.clone();
     // No `prompt_for_user_token` needed.
-    spotify
-        .refresh_token()
-        .await
-        .expect("couldn't refresh user token");
+    spotify.refresh_token().await.expect("couldn't refresh user token");
     do_things(spotify).await;
 
     // This process can now be repeated multiple times by using only the
@@ -90,9 +84,6 @@ async fn main() {
     println!(">>> Session three, running some requests:");
     let spotify = AuthCodeSpotify::new(creds, oauth);
     *spotify.token.lock().await.unwrap() = prev_token;
-    spotify
-        .refresh_token()
-        .await
-        .expect("couldn't refresh user token");
+    spotify.refresh_token().await.expect("couldn't refresh user token");
     do_things(spotify).await;
 }

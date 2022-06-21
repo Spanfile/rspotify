@@ -8,7 +8,7 @@ pub mod audio;
 pub mod auth;
 pub mod category;
 pub mod context;
-pub(in crate) mod custom_serde;
+pub(crate) mod custom_serde;
 pub mod device;
 pub mod enums;
 pub mod error;
@@ -24,11 +24,26 @@ pub mod show;
 pub mod track;
 pub mod user;
 
-pub use {
-    album::*, artist::*, audio::*, auth::*, category::*, context::*, device::*, enums::*, error::*,
-    idtypes::*, image::*, offset::*, page::*, playing::*, playlist::*, recommend::*, search::*,
-    show::*, track::*, user::*,
-};
+pub use album::*;
+pub use artist::*;
+pub use audio::*;
+pub use auth::*;
+pub use category::*;
+pub use context::*;
+pub use device::*;
+pub use enums::*;
+pub use error::*;
+pub use idtypes::*;
+pub use image::*;
+pub use offset::*;
+pub use page::*;
+pub use playing::*;
+pub use playlist::*;
+pub use recommend::*;
+pub use search::*;
+pub use show::*;
+pub use track::*;
+pub use user::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -80,17 +95,11 @@ mod tests {
         );
 
         // Mismatch type
-        assert_eq!(
-            Err(IdError::InvalidType),
-            ArtistId::from_id_or_uri(album_id_a)
-        );
+        assert_eq!(Err(IdError::InvalidType), ArtistId::from_id_or_uri(album_id_a));
 
         // Could not split
         let artist_id_c = "spotify-album-2WX2uTcsvV5OnS0inACecP";
-        assert_eq!(
-            Err(IdError::InvalidId),
-            ArtistId::from_id_or_uri(artist_id_c)
-        );
+        assert_eq!(Err(IdError::InvalidId), ArtistId::from_id_or_uri(artist_id_c));
 
         let playlist_id = "spotify:playlist:59ZbFPES4DQwEjBpWHzrtC";
         assert_eq!(

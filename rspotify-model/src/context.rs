@@ -3,8 +3,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 
-use std::collections::HashMap;
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use crate::{
     custom_serde::{millisecond_timestamp, option_duration_ms},

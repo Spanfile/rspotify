@@ -25,9 +25,7 @@ pub enum AlbumType {
 }
 
 /// Type: `artist`, `album`, `track`, `playlist`, `show` or `episode`
-#[derive(
-    Clone, Serialize, Deserialize, Copy, PartialEq, Eq, Debug, Display, EnumString, AsRefStr,
-)]
+#[derive(Clone, Serialize, Deserialize, Copy, PartialEq, Eq, Debug, Display, EnumString, AsRefStr)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Type {

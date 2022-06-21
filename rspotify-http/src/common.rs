@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use maybe_async::maybe_async;
 use serde_json::Value;
@@ -23,19 +22,9 @@ pub trait BaseHttpClient: Send + Default + Clone + fmt::Debug {
     type Error;
 
     // This internal function should always be given an object value in JSON.
-    async fn get(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Query,
-    ) -> Result<String, Self::Error>;
+    async fn get(&self, url: &str, headers: Option<&Headers>, payload: &Query) -> Result<String, Self::Error>;
 
-    async fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error>;
+    async fn post(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error>;
 
     async fn post_form<'a>(
         &self,
@@ -44,17 +33,7 @@ pub trait BaseHttpClient: Send + Default + Clone + fmt::Debug {
         payload: &Form<'a>,
     ) -> Result<String, Self::Error>;
 
-    async fn put(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error>;
+    async fn put(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error>;
 
-    async fn delete(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> Result<String, Self::Error>;
+    async fn delete(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> Result<String, Self::Error>;
 }

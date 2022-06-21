@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::{
-    AlbumId, AlbumType, Copyright, DatePrecision, Image, Page, RestrictionReason, SimplifiedArtist,
-    SimplifiedTrack,
+    AlbumId, AlbumType, Copyright, DatePrecision, Image, Page, RestrictionReason, SimplifiedArtist, SimplifiedTrack,
 };
 
 /// Simplified Album Object

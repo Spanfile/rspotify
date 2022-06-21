@@ -106,71 +106,44 @@ where
     //
     // The Spotify client has two different wrappers to perform requests:
     //
-    // * Basic wrappers: `get`, `post`, `put`, `delete`, `post_form`. These only
-    //   append the configured Spotify API URL to the relative URL provided so
-    //   that it's not forgotten. They're used in the authentication process to
-    //   request an access token and similars.
-    // * Endpoint wrappers: `endpoint_get`, `endpoint_post`, `endpoint_put`,
-    //   `endpoint_delete`. These append the authentication headers for endpoint
-    //   requests to reduce the code needed for endpoints and make them as
-    //   concise as possible.
+    // * Basic wrappers: `get`, `post`, `put`, `delete`, `post_form`. These only append the configured Spotify API URL
+    //   to the relative URL provided so that it's not forgotten. They're used in the authentication process to request
+    //   an access token and similars.
+    // * Endpoint wrappers: `endpoint_get`, `endpoint_post`, `endpoint_put`, `endpoint_delete`. These append the
+    //   authentication headers for endpoint requests to reduce the code needed for endpoints and make them as concise
+    //   as possible.
 
     #[doc(hidden)]
     #[inline]
-    async fn get(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Query<'_>,
-    ) -> ClientResult<String> {
+    async fn get(&self, url: &str, headers: Option<&Headers>, payload: &Query<'_>) -> ClientResult<String> {
         let url = self.endpoint_url(url);
         Ok(self.get_http().get(&url, headers, payload).await?)
     }
 
     #[doc(hidden)]
     #[inline]
-    async fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> ClientResult<String> {
+    async fn post(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> ClientResult<String> {
         let url = self.endpoint_url(url);
         Ok(self.get_http().post(&url, headers, payload).await?)
     }
 
     #[doc(hidden)]
     #[inline]
-    async fn post_form(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Form<'_>,
-    ) -> ClientResult<String> {
+    async fn post_form(&self, url: &str, headers: Option<&Headers>, payload: &Form<'_>) -> ClientResult<String> {
         let url = self.endpoint_url(url);
         Ok(self.get_http().post_form(&url, headers, payload).await?)
     }
 
     #[doc(hidden)]
     #[inline]
-    async fn put(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> ClientResult<String> {
+    async fn put(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> ClientResult<String> {
         let url = self.endpoint_url(url);
         Ok(self.get_http().put(&url, headers, payload).await?)
     }
 
     #[doc(hidden)]
     #[inline]
-    async fn delete(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> ClientResult<String> {
+    async fn delete(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> ClientResult<String> {
         let url = self.endpoint_url(url);
         Ok(self.get_http().delete(&url, headers, payload).await?)
     }
@@ -226,11 +199,7 @@ where
     }
 
     /// Sends a request to Spotify for an access token.
-    async fn fetch_access_token(
-        &self,
-        payload: &Form<'_>,
-        headers: Option<&Headers>,
-    ) -> ClientResult<Token> {
+    async fn fetch_access_token(&self, payload: &Form<'_>, headers: Option<&Headers>) -> ClientResult<Token> {
         let response = self.post_form(auth_urls::TOKEN, headers, payload).await?;
 
         let mut tok = serde_json::from_str::<Token>(&response)?;
@@ -321,9 +290,7 @@ where
         market: Option<&'a Market>,
     ) -> Paginator<'_, ClientResult<SimplifiedAlbum>> {
         paginate(
-            move |limit, offset| {
-                self.artist_albums_manual(artist_id, album_type, market, Some(limit), Some(offset))
-            },
+            move |limit, offset| self.artist_albums_manual(artist_id, album_type, market, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
         )
     }
@@ -359,11 +326,7 @@ where
     /// - market - limit the response to one particular country.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-an-artists-top-tracks)
-    async fn artist_top_tracks(
-        &self,
-        artist_id: &ArtistId,
-        market: &Market,
-    ) -> ClientResult<Vec<FullTrack>> {
+    async fn artist_top_tracks(&self, artist_id: &ArtistId, market: &Market) -> ClientResult<Vec<FullTrack>> {
         let params = build_map! {
             "market": market.as_ref()
         };
@@ -426,9 +389,8 @@ where
     /// - type - the type of item to return. One of 'artist', 'album', 'track',
     ///  'playlist', 'show' or 'episode'
     /// - market - An ISO 3166-1 alpha-2 country code or the string from_token.
-    /// - include_external: Optional.Possible values: audio. If
-    ///   include_external=audio is specified the response will include any
-    ///   relevant audio content that is hosted externally.  
+    /// - include_external: Optional.Possible values: audio. If include_external=audio is specified the response will
+    ///   include any relevant audio content that is hosted externally.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#category-search)
     async fn search(
@@ -466,10 +428,7 @@ where
     /// this.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-an-albums-tracks)
-    fn album_track<'a>(
-        &'a self,
-        album_id: &'a AlbumId,
-    ) -> Paginator<'_, ClientResult<SimplifiedTrack>> {
+    fn album_track<'a>(&'a self, album_id: &'a AlbumId) -> Paginator<'_, ClientResult<SimplifiedTrack>> {
         paginate(
             move |limit, offset| self.album_track_manual(album_id, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
@@ -560,15 +519,10 @@ where
     ///
     /// Parameters:
     /// - playlist_id - the id of the playlist
-    /// - user_ids - the ids of the users that you want to check to see if they
-    ///   follow the playlist. Maximum: 5 ids.
+    /// - user_ids - the ids of the users that you want to check to see if they follow the playlist. Maximum: 5 ids.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/check-if-user-follows-playlist)
-    async fn playlist_check_follow(
-        &self,
-        playlist_id: &PlaylistId,
-        user_ids: &[&UserId],
-    ) -> ClientResult<Vec<bool>> {
+    async fn playlist_check_follow(&self, playlist_id: &PlaylistId, user_ids: &[&UserId]) -> ClientResult<Vec<bool>> {
         debug_assert!(
             user_ids.len() <= 5,
             "The maximum length of user ids is limited to 5 :-)"
@@ -576,11 +530,7 @@ where
         let url = format!(
             "playlists/{}/followers/contains?ids={}",
             playlist_id.id(),
-            user_ids
-                .iter()
-                .map(|id| id.id())
-                .collect::<Vec<_>>()
-                .join(","),
+            user_ids.iter().map(|id| id.id()).collect::<Vec<_>>().join(","),
         );
         let result = self.endpoint_get(&url, &Query::new()).await?;
         convert_result(&result)
@@ -636,7 +586,8 @@ where
     ///
     /// Query Parameters
     /// - limit: Optional. The maximum number of episodes to return. Default: 20. Minimum: 1. Maximum: 50.
-    /// - offset: Optional. The index of the first episode to return. Default: 0 (the first object). Use with limit to get the next set of episodes.
+    /// - offset: Optional. The index of the first episode to return. Default: 0 (the first object). Use with limit to
+    ///   get the next set of episodes.
     /// - market: Optional. An ISO 3166-1 alpha-2 country code or the string from_token.
     ///
     /// See [`Self::get_shows_episodes_manual`] for a manually paginated version
@@ -649,9 +600,7 @@ where
         market: Option<&'a Market>,
     ) -> Paginator<'_, ClientResult<SimplifiedEpisode>> {
         paginate(
-            move |limit, offset| {
-                self.get_shows_episodes_manual(id, market, Some(limit), Some(offset))
-            },
+            move |limit, offset| self.get_shows_episodes_manual(id, market, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
         )
     }
@@ -686,11 +635,7 @@ where
     /// - market: Optional. An ISO 3166-1 alpha-2 country code or the string from_token.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-an-episode)
-    async fn get_an_episode(
-        &self,
-        id: &EpisodeId,
-        market: Option<&Market>,
-    ) -> ClientResult<FullEpisode> {
+    async fn get_an_episode(&self, id: &EpisodeId, market: Option<&Market>) -> ClientResult<FullEpisode> {
         let url = format!("episodes/{}", id.id());
         let params = build_map! {
             optional "market": market.map(|x| x.as_ref()),
@@ -771,12 +716,11 @@ where
     ///
     /// Parameters:
     /// - country - An ISO 3166-1 alpha-2 country code or string from_token.
-    /// - locale - The desired language, consisting of an ISO 639 language code
-    ///   and an ISO 3166-1 alpha-2 country code, joined by an underscore.
-    /// - limit - The maximum number of items to return. Default: 20.
-    ///   Minimum: 1. Maximum: 50
-    /// - offset - The index of the first item to return. Default: 0 (the first
-    ///   object). Use with limit to get the next set of items.
+    /// - locale - The desired language, consisting of an ISO 639 language code and an ISO 3166-1 alpha-2 country code,
+    ///   joined by an underscore.
+    /// - limit - The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50
+    /// - offset - The index of the first item to return. Default: 0 (the first object). Use with limit to get the next
+    ///   set of items.
     ///
     /// See [`Self::categories_manual`] for a manually paginated version of
     /// this.
@@ -818,10 +762,9 @@ where
     /// Parameters:
     /// - category_id - The category id to get playlists from.
     /// - country - An ISO 3166-1 alpha-2 country code or the string from_token.
-    /// - limit - The maximum number of items to return. Default: 20.
-    ///   Minimum: 1. Maximum: 50
-    /// - offset - The index of the first item to return. Default: 0 (the first
-    ///   object). Use with limit to get the next set of items.
+    /// - limit - The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50
+    /// - offset - The index of the first item to return. Default: 0 (the first object). Use with limit to get the next
+    ///   set of items.
     ///
     /// See [`Self::category_playlists_manual`] for a manually paginated version
     /// of this.
@@ -833,9 +776,7 @@ where
         country: Option<&'a Market>,
     ) -> Paginator<'_, ClientResult<SimplifiedPlaylist>> {
         paginate(
-            move |limit, offset| {
-                self.category_playlists_manual(category_id, country, Some(limit), Some(offset))
-            },
+            move |limit, offset| self.category_playlists_manual(category_id, country, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
         )
     }
@@ -864,18 +805,14 @@ where
     /// Get a list of Spotify featured playlists.
     ///
     /// Parameters:
-    /// - locale - The desired language, consisting of a lowercase ISO 639
-    ///   language code and an uppercase ISO 3166-1 alpha-2 country code,
-    ///   joined by an underscore.
+    /// - locale - The desired language, consisting of a lowercase ISO 639 language code and an uppercase ISO 3166-1
+    ///   alpha-2 country code, joined by an underscore.
     /// - country - An ISO 3166-1 alpha-2 country code or the string from_token.
-    /// - timestamp - A timestamp in ISO 8601 format: yyyy-MM-ddTHH:mm:ss. Use
-    ///   this parameter to specify the user's local time to get results
-    ///   tailored for that specific date and time in the day
-    /// - limit - The maximum number of items to return. Default: 20.
-    ///   Minimum: 1. Maximum: 50
-    /// - offset - The index of the first item to return. Default: 0
-    ///   (the first object). Use with limit to get the next set of
-    ///   items.
+    /// - timestamp - A timestamp in ISO 8601 format: yyyy-MM-ddTHH:mm:ss. Use this parameter to specify the user's
+    ///   local time to get results tailored for that specific date and time in the day
+    /// - limit - The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50
+    /// - offset - The index of the first item to return. Default: 0 (the first object). Use with limit to get the next
+    ///   set of items.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-featured-playlists)
     async fn featured_playlists(
@@ -897,9 +834,7 @@ where
             optional "offset": offset.as_deref(),
         };
 
-        let result = self
-            .endpoint_get("browse/featured-playlists", &params)
-            .await?;
+        let result = self.endpoint_get("browse/featured-playlists", &params).await?;
         convert_result(&result)
     }
 
@@ -907,19 +842,15 @@ where
     ///
     /// Parameters:
     /// - country - An ISO 3166-1 alpha-2 country code or string from_token.
-    /// - limit - The maximum number of items to return. Default: 20.
-    ///   Minimum: 1. Maximum: 50
-    /// - offset - The index of the first item to return. Default: 0 (the first
-    ///   object). Use with limit to get the next set of items.
+    /// - limit - The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50
+    /// - offset - The index of the first item to return. Default: 0 (the first object). Use with limit to get the next
+    ///   set of items.
     ///
     /// See [`Self::new_releases_manual`] for a manually paginated version of
     /// this.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-new-releases)
-    fn new_releases<'a>(
-        &'a self,
-        country: Option<&'a Market>,
-    ) -> Paginator<'_, ClientResult<SimplifiedAlbum>> {
+    fn new_releases<'a>(&'a self, country: Option<&'a Market>) -> Paginator<'_, ClientResult<SimplifiedAlbum>> {
         paginate(
             move |limit, offset| self.new_releases_manual(country, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
@@ -948,18 +879,16 @@ where
     /// Get Recommendations Based on Seeds
     ///
     /// Parameters:
-    /// - attributes - restrictions on attributes for the selected tracks, such
-    ///   as `min_acousticness` or `target_duration_ms`.
+    /// - attributes - restrictions on attributes for the selected tracks, such as `min_acousticness` or
+    ///   `target_duration_ms`.
     /// - seed_artists - a list of artist IDs, URIs or URLs
     /// - seed_tracks - a list of artist IDs, URIs or URLs
     /// - seed_genres - a list of genre names. Available genres for
-    /// - market - An ISO 3166-1 alpha-2 country code or the string from_token. If provided, all
-    ///   results will be playable in this country.
-    /// - limit - The maximum number of items to return. Default: 20.
-    ///   Minimum: 1. Maximum: 100
-    /// - min/max/target_<attribute> - For the tuneable track attributes listed
-    ///   in the documentation, these values provide filters and targeting on
-    ///   results.
+    /// - market - An ISO 3166-1 alpha-2 country code or the string from_token. If provided, all results will be
+    ///   playable in this country.
+    /// - limit - The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 100
+    /// - min/max/target_<attribute> - For the tuneable track attributes listed in the documentation, these values
+    ///   provide filters and targeting on results.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-recommendations)
     async fn recommendations<'a>(
@@ -1020,9 +949,7 @@ where
         market: Option<&'a Market>,
     ) -> Paginator<'_, ClientResult<PlaylistItem>> {
         paginate(
-            move |limit, offset| {
-                self.playlist_items_manual(playlist_id, fields, market, Some(limit), Some(offset))
-            },
+            move |limit, offset| self.playlist_items_manual(playlist_id, fields, market, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,
         )
     }
@@ -1061,10 +988,7 @@ where
     /// this.
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-list-users-playlists)
-    fn user_playlists<'a>(
-        &'a self,
-        user_id: &'a UserId,
-    ) -> Paginator<'_, ClientResult<SimplifiedPlaylist>> {
+    fn user_playlists<'a>(&'a self, user_id: &'a UserId) -> Paginator<'_, ClientResult<SimplifiedPlaylist>> {
         paginate(
             move |limit, offset| self.user_playlists_manual(user_id, Some(limit), Some(offset)),
             self.get_config().pagination_chunks,

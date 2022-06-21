@@ -18,9 +18,9 @@
 use rspotify::{
     clients::pagination::Paginator,
     model::{
-        AlbumId, ArtistId, Country, CurrentPlaybackContext, Device, EpisodeId, FullPlaylist,
-        ItemPositions, Market, Offset, PlaylistId, RecommendationsAttribute, RepeatState,
-        SearchType, ShowId, TimeLimits, TimeRange, TrackId, UserId,
+        AlbumId, ArtistId, Country, CurrentPlaybackContext, Device, EpisodeId, FullPlaylist, ItemPositions, Market,
+        Offset, PlaylistId, RecommendationsAttribute, RepeatState, SearchType, ShowId, TimeLimits, TimeRange, TrackId,
+        UserId,
     },
     prelude::*,
     scopes, AuthCodeSpotify, ClientResult, Credentials, OAuth, Token,
@@ -46,10 +46,8 @@ pub async fn oauth_client() -> AuthCodeSpotify {
         // `env-file` in order to read them from an `.env` file.
         let creds = Credentials::from_env().unwrap_or_else(|| {
             panic!(
-                "No credentials configured. Make sure that either the \
-                `env-file` feature is enabled, or that the required \
-                environment variables are exported (`RSPOTIFY_CLIENT_ID`, \
-                `RSPOTIFY_CLIENT_SECRET`)."
+                "No credentials configured. Make sure that either the `env-file` feature is enabled, or that the \
+                 required environment variables are exported (`RSPOTIFY_CLIENT_ID`, `RSPOTIFY_CLIENT_SECRET`)."
             )
         });
 
@@ -88,9 +86,8 @@ pub async fn oauth_client() -> AuthCodeSpotify {
         spotify
     } else {
         panic!(
-            "No access tokens configured. Please set `RSPOTIFY_ACCESS_TOKEN` \
-             or `RSPOTIFY_REFRESH_TOKEN`, which can be obtained with the \
-             `oauth_tokens` example."
+            "No access tokens configured. Please set `RSPOTIFY_ACCESS_TOKEN` or `RSPOTIFY_REFRESH_TOKEN`, which can \
+             be obtained with the `oauth_tokens` example."
         )
     }
 }
@@ -115,12 +112,7 @@ async fn fetch_all<T>(paginator: Paginator<'_, ClientResult<T>>) -> Vec<T> {
 async fn test_categories() {
     oauth_client()
         .await
-        .categories_manual(
-            None,
-            Some(&Market::Country(Country::UnitedStates)),
-            Some(10),
-            None,
-        )
+        .categories_manual(None, Some(&Market::Country(Country::UnitedStates)), Some(10), None)
         .await
         .unwrap();
 }
@@ -130,12 +122,7 @@ async fn test_categories() {
 async fn test_category_playlists() {
     oauth_client()
         .await
-        .category_playlists_manual(
-            "pop",
-            Some(&Market::Country(Country::UnitedStates)),
-            Some(10),
-            None,
-        )
+        .category_playlists_manual("pop", Some(&Market::Country(Country::UnitedStates)), Some(10), None)
         .await
         .unwrap();
 }
@@ -143,21 +130,13 @@ async fn test_category_playlists() {
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 #[ignore]
 async fn test_current_playback() {
-    oauth_client()
-        .await
-        .current_playback(None, None::<&[_]>)
-        .await
-        .unwrap();
+    oauth_client().await.current_playback(None, None::<&[_]>).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 #[ignore]
 async fn test_current_playing() {
-    oauth_client()
-        .await
-        .current_playing(None, None::<&[_]>)
-        .await
-        .unwrap();
+    oauth_client().await.current_playing(None, None::<&[_]>).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -173,11 +152,7 @@ async fn test_current_user_followed_artists() {
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 #[ignore]
 async fn test_current_user_playing_track() {
-    oauth_client()
-        .await
-        .current_user_playing_item()
-        .await
-        .unwrap();
+    oauth_client().await.current_user_playing_item().await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -202,30 +177,20 @@ async fn test_current_user_saved_albums() {
     let client = oauth_client().await;
 
     // First adding the albums
-    client
-        .current_user_saved_albums_add(album_ids)
-        .await
-        .unwrap();
+    client.current_user_saved_albums_add(album_ids).await.unwrap();
 
     // Making sure the new albums appear
     let all_albums = fetch_all(client.current_user_saved_albums(None)).await;
     // Can handle albums without available_market
-    let _albums_from_token =
-        fetch_all(client.current_user_saved_albums(Some(&Market::FromToken))).await;
-    let all_uris = all_albums
-        .into_iter()
-        .map(|a| a.album.id)
-        .collect::<Vec<_>>();
+    let _albums_from_token = fetch_all(client.current_user_saved_albums(Some(&Market::FromToken))).await;
+    let all_uris = all_albums.into_iter().map(|a| a.album.id).collect::<Vec<_>>();
     assert!(
         album_ids.iter().all(|item| all_uris.contains(item)),
         "couldn't find the new saved albums"
     );
 
     // And then removing them
-    client
-        .current_user_saved_albums_delete(album_ids)
-        .await
-        .unwrap();
+    client.current_user_saved_albums_delete(album_ids).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -236,30 +201,18 @@ async fn test_current_user_saved_tracks_add() {
         &TrackId::from_uri("spotify:track:4iV5W9uYEdYUVa79Axb7Rh").unwrap(),
         &TrackId::from_uri("spotify:track:1301WleyT98MSxVHPZCA6M").unwrap(),
     ];
-    client
-        .current_user_saved_tracks_add(tracks_ids)
-        .await
-        .unwrap();
+    client.current_user_saved_tracks_add(tracks_ids).await.unwrap();
 
-    let contains = client
-        .current_user_saved_tracks_contains(tracks_ids)
-        .await
-        .unwrap();
+    let contains = client.current_user_saved_tracks_contains(tracks_ids).await.unwrap();
     // Every track should be saved
     assert!(contains.into_iter().all(|x| x));
 
     let all = fetch_all(client.current_user_saved_tracks(None)).await;
-    let all = all
-        .into_iter()
-        .filter_map(|saved| saved.track.id)
-        .collect::<Vec<_>>();
+    let all = all.into_iter().filter_map(|saved| saved.track.id).collect::<Vec<_>>();
     // All the initial tracks should appear
     assert!(tracks_ids.iter().all(|track| all.contains(track)));
 
-    client
-        .current_user_saved_tracks_delete(tracks_ids)
-        .await
-        .unwrap();
+    client.current_user_saved_tracks_delete(tracks_ids).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -337,12 +290,7 @@ async fn test_playback() {
 
     for (i, device) in devices.iter().enumerate() {
         let device_id = device.id.as_ref().unwrap();
-        let next_device_id = devices
-            .get(i + 1)
-            .unwrap_or(&devices[0])
-            .id
-            .as_ref()
-            .unwrap();
+        let next_device_id = devices.get(i + 1).unwrap_or(&devices[0]).id.as_ref().unwrap();
 
         // Starting playback of some songs
         client
@@ -372,10 +320,7 @@ async fn test_playback() {
             }
         }
 
-        client
-            .transfer_playback(next_device_id, Some(true))
-            .await
-            .unwrap();
+        client.transfer_playback(next_device_id, Some(true)).await.unwrap();
     }
 
     // Restore the original playback data
@@ -385,10 +330,7 @@ async fn test_playback() {
             let offset = None;
             let device = backup.device.id.as_deref();
             let position = backup.progress.map(|p| p.as_millis() as u32);
-            client
-                .start_uris_playback(uri, device, offset, position)
-                .await
-                .unwrap();
+            client.start_uris_playback(uri, device, offset, position).await.unwrap();
         }
     }
     // Pause the playback by default, unless it was playing before
@@ -529,10 +471,7 @@ async fn test_seek_track() {
         ..
     }) = backup
     {
-        client
-            .seek_track(progress.as_millis() as u32, None)
-            .await
-            .unwrap();
+        client.seek_track(progress.as_millis() as u32, None).await.unwrap();
     }
 }
 
@@ -583,10 +522,7 @@ async fn test_user_follow_playlist() {
     let client = oauth_client().await;
     let playlist_id = PlaylistId::from_id("2v3iNvBX8Ay1Gt2uXtUKUT").unwrap();
 
-    client
-        .playlist_follow(&playlist_id, Some(true))
-        .await
-        .unwrap();
+    client.playlist_follow(&playlist_id, Some(true)).await.unwrap();
 
     client.playlist_unfollow(&playlist_id).await.unwrap();
 }
@@ -603,10 +539,7 @@ async fn check_playlist_create(client: &AuthCodeSpotify) -> FullPlaylist {
         .unwrap();
 
     // Making sure that the playlist has been added to the user's profile
-    let fetched_playlist = client
-        .user_playlist(&user.id, Some(&playlist.id), None)
-        .await
-        .unwrap();
+    let fetched_playlist = client.user_playlist(&user.id, Some(&playlist.id), None).await.unwrap();
     assert_eq!(playlist.id, fetched_playlist.id);
     let user_playlists = fetch_all(client.user_playlists(&user.id)).await;
     let current_user_playlists = fetch_all(client.current_user_playlists()).await;
@@ -616,13 +549,7 @@ async fn check_playlist_create(client: &AuthCodeSpotify) -> FullPlaylist {
     let name = "A New Playlist-update";
     let description = "A random description";
     client
-        .playlist_change_detail(
-            &playlist.id,
-            Some(name),
-            Some(true),
-            Some(description),
-            Some(false),
-        )
+        .playlist_change_detail(&playlist.id, Some(name), Some(true), Some(description), Some(false))
         .await
         .unwrap();
 
@@ -646,10 +573,7 @@ async fn check_playlist_tracks(client: &AuthCodeSpotify, playlist: &FullPlaylist
     ];
 
     // Firstly adding some tracks
-    client
-        .playlist_add_items(&playlist.id, tracks, None)
-        .await
-        .unwrap();
+    client.playlist_add_items(&playlist.id, tracks, None).await.unwrap();
     check_num_tracks(client, &playlist.id, tracks.len() as i32).await;
 
     // Reordering some tracks
@@ -716,10 +640,7 @@ async fn check_playlist_follow(client: &AuthCodeSpotify, playlist: &FullPlaylist
     ];
 
     // It's a new playlist, so it shouldn't have any followers
-    let following = client
-        .playlist_check_follow(&playlist.id, &user_ids)
-        .await
-        .unwrap();
+    let following = client.playlist_check_follow(&playlist.id, &user_ids).await.unwrap();
     assert_eq!(following, vec![false, false]);
 
     // Finally unfollowing the playlist in order to clean it up
@@ -764,11 +685,7 @@ async fn test_add_queue() {
     // NOTE: unfortunately it's impossible to revert this test
 
     let birdy_uri = TrackId::from_uri("spotify:track:6rqhFgbbKwnb9MLmUQDhG6").unwrap();
-    oauth_client()
-        .await
-        .add_item_to_queue(&birdy_uri, None)
-        .await
-        .unwrap();
+    oauth_client().await.add_item_to_queue(&birdy_uri, None).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -779,11 +696,7 @@ async fn test_get_several_shows() {
         &ShowId::from_id("5as3aKmN2k11yfDDDSrvaZ").unwrap(),
     ];
 
-    oauth_client()
-        .await
-        .get_several_shows(shows, None)
-        .await
-        .unwrap();
+    oauth_client().await.get_several_shows(shows, None).await.unwrap();
 }
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
@@ -793,9 +706,5 @@ async fn test_get_several_episodes() {
         &EpisodeId::from_id("0lbiy3LKzIY2fnyjioC11p").unwrap(),
         &EpisodeId::from_id("4zugY5eJisugQj9rj8TYuh").unwrap(),
     ];
-    oauth_client()
-        .await
-        .get_several_episodes(episodes, None)
-        .await
-        .unwrap();
+    oauth_client().await.get_several_episodes(episodes, None).await.unwrap();
 }

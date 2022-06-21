@@ -19,7 +19,7 @@ async fn main() {
     // ```
     // let creds = Credentials {
     //     id: "this-is-my-client-id".to_string(),
-    //     secret: Some("this-is-my-client-secret".to_string())
+    //     secret: Some("this-is-my-client-secret".to_string()),
     // };
     // ```
     let creds = Credentials::from_env().unwrap();

@@ -11,15 +11,9 @@
 //! client with its default TLS, but you can customize both the HTTP client and
 //! the TLS with the following features:
 //!
-//! - [reqwest][reqwest-docs]: enabling
-//!   `client-reqwest`, TLS available:
-//!     + `reqwest-default-tls` (reqwest's default)
-//!     + `reqwest-rustls-tls`
-//!     + `reqwest-native-tls`
-//!     + `reqwest-native-tls-vendored`
-//! - [ureq][ureq-docs]: enabling `client-ureq`, TLS
-//!   available:
-//!     + `ureq-rustls-tls` (ureq's default)
+//! - [reqwest][reqwest-docs]: enabling `client-reqwest`, TLS available: + `reqwest-default-tls` (reqwest's default) +
+//!   `reqwest-rustls-tls` + `reqwest-native-tls` + `reqwest-native-tls-vendored`
+//! - [ureq][ureq-docs]: enabling `client-ureq`, TLS available: + `ureq-rustls-tls` (ureq's default)
 //!
 //! If you want to use a different client or TLS than the default ones, you'll
 //! have to disable the default features and enable whichever you want. For
@@ -87,14 +81,12 @@
 //! [`OAuthClient`](crate::clients::OAuthClient) according to what kind of
 //! flow it is. Please refer to their documentation for more details:
 //!
-//! * [Client Credentials Flow][spotify-client-creds]: see
-//!   [`ClientCredsSpotify`].
+//! * [Client Credentials Flow][spotify-client-creds]: see [`ClientCredsSpotify`].
 //! * [Authorization Code Flow][spotify-auth-code]: see [`AuthCodeSpotify`].
-//! * [Authorization Code Flow with Proof Key for Code Exchange
-//!   (PKCE)][spotify-auth-code-pkce]: see [`AuthCodePkceSpotify`].
-//! * [Implicit Grant Flow][spotify-implicit-grant]: unimplemented, as Rspotify
-//!   has not been tested on a browser yet. If you'd like support for it, let us
-//!   know in an issue!
+//! * [Authorization Code Flow with Proof Key for Code Exchange (PKCE)][spotify-auth-code-pkce]: see
+//!   [`AuthCodePkceSpotify`].
+//! * [Implicit Grant Flow][spotify-implicit-grant]: unimplemented, as Rspotify has not been tested on a browser yet. If
+//!   you'd like support for it, let us know in an issue!
 //!
 //! In order to help other developers to get used to `rspotify`, there are
 //! public credentials available for a dummy account. You can test `rspotify`
@@ -150,12 +142,14 @@ use getrandom::getrandom;
 use thiserror::Error;
 
 pub mod prelude {
-    pub use crate::clients::{BaseClient, OAuthClient};
-    pub use crate::model::idtypes::{Id, PlayContextId, PlayableId};
+    pub use crate::{
+        clients::{BaseClient, OAuthClient},
+        model::idtypes::{Id, PlayContextId, PlayableId},
+    };
 }
 
 /// Common headers as constants.
-pub(in crate) mod params {
+pub(crate) mod params {
     pub const CLIENT_ID: &str = "client_id";
     pub const CODE: &str = "code";
     pub const GRANT_TYPE: &str = "grant_type";
@@ -176,14 +170,13 @@ pub(in crate) mod params {
 }
 
 /// Common alphabets for random number generation and similars
-pub(in crate) mod alphabets {
+pub(crate) mod alphabets {
     pub const ALPHANUM: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     /// From https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
-    pub const PKCE_CODE_VERIFIER: &[u8] =
-        b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~";
+    pub const PKCE_CODE_VERIFIER: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~";
 }
 
-pub(in crate) mod auth_urls {
+pub(crate) mod auth_urls {
     pub const AUTHORIZE: &str = "https://accounts.spotify.com/authorize";
     pub const TOKEN: &str = "https://accounts.spotify.com/api/token";
 }
@@ -275,7 +268,7 @@ impl Default for Config {
 ///
 /// It is assumed that system always provides high-quality cryptographically
 /// secure random data, ideally backed by hardware entropy sources.
-pub(in crate) fn generate_random_string(length: usize, alphabet: &[u8]) -> String {
+pub(crate) fn generate_random_string(length: usize, alphabet: &[u8]) -> String {
     let mut buf = vec![0u8; length];
     getrandom(&mut buf).unwrap();
     let range = alphabet.len();
@@ -286,17 +279,13 @@ pub(in crate) fn generate_random_string(length: usize, alphabet: &[u8]) -> Strin
 }
 
 #[inline]
-pub(in crate) fn join_ids<'a, T: Id + 'a + ?Sized>(ids: impl IntoIterator<Item = &'a T>) -> String {
+pub(crate) fn join_ids<'a, T: Id + 'a + ?Sized>(ids: impl IntoIterator<Item = &'a T>) -> String {
     ids.into_iter().map(Id::id).collect::<Vec<_>>().join(",")
 }
 
 #[inline]
-pub(in crate) fn join_scopes(scopes: &HashSet<String>) -> String {
-    scopes
-        .iter()
-        .map(String::as_str)
-        .collect::<Vec<_>>()
-        .join(" ")
+pub(crate) fn join_scopes(scopes: &HashSet<String>) -> String {
+    scopes.iter().map(String::as_str).collect::<Vec<_>>().join(" ")
 }
 
 /// Simple client credentials object for Spotify.
