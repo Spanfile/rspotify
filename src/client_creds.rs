@@ -3,7 +3,7 @@ use crate::{
     http::{Form, HttpClient},
     params,
     sync::Mutex,
-    ClientResult, Config, Credentials, Token,
+    ClientError, ClientResult, Config, Credentials, Token,
 };
 
 use maybe_async::maybe_async;
@@ -117,10 +117,7 @@ impl ClientCredsSpotify {
         let mut data = Form::new();
 
         data.insert(params::GRANT_TYPE, params::GRANT_TYPE_CLIENT_CREDS);
-        let headers = self
-            .creds
-            .auth_headers()
-            .expect("No client secret set in the credentials.");
+        let headers = self.creds.auth_headers().ok_or(ClientError::MissingClientSecret)?;
 
         let token = self.fetch_access_token(&data, Some(&headers)).await?;
         Ok(token)

@@ -208,6 +208,15 @@ pub enum ClientError {
 
     #[error("model error: {0}")]
     Model(#[from] model::ModelError),
+
+    #[error("not authenticated")]
+    NotAuthenticated,
+    #[error("missing client secret")]
+    MissingClientSecret,
+    #[error(
+        "Unknown code verifier. Try calling `AuthCodePkceSpotify::get_authorize_url` first or setting it yourself."
+    )]
+    MissingCodeVerifier,
 }
 
 // The conversion has to be done manually because it's in a `Box<T>`

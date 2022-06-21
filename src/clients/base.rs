@@ -9,7 +9,7 @@ use crate::{
     macros::build_map,
     model::*,
     sync::Mutex,
-    ClientResult, Config, Credentials, Token,
+    ClientError, ClientResult, Config, Credentials, Token,
 };
 
 use std::{collections::HashMap, fmt, sync::Arc};
@@ -87,18 +87,17 @@ where
     /// Since this is accessed by authenticated requests always, it's where the
     /// automatic reauthentication takes place, if enabled.
     #[doc(hidden)]
-    async fn auth_headers(&self) -> Headers {
-        self.auto_reauth()
-            .await
-            .expect("Failed to re-authenticate automatically, please authenticate");
+    async fn auth_headers(&self) -> ClientResult<Headers> {
+        self.auto_reauth().await?;
 
-        self.get_token()
+        Ok(self
+            .get_token()
             .lock()
             .await
-            .expect("Failed to acquire lock")
+            .unwrap()
             .as_ref()
-            .expect("Rspotify not authenticated")
-            .auth_headers()
+            .ok_or(ClientError::NotAuthenticated)?
+            .auth_headers())
     }
 
     // HTTP-related methods for the Spotify client. It wraps the basic HTTP
@@ -154,28 +153,28 @@ where
     #[doc(hidden)]
     #[inline]
     async fn endpoint_get(&self, url: &str, payload: &Query<'_>) -> ClientResult<String> {
-        let headers = self.auth_headers().await;
+        let headers = self.auth_headers().await?;
         self.get(url, Some(&headers), payload).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_post(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await;
+        let headers = self.auth_headers().await?;
         self.post(url, Some(&headers), payload).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_put(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await;
+        let headers = self.auth_headers().await?;
         self.put(url, Some(&headers), payload).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_delete(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await;
+        let headers = self.auth_headers().await?;
         self.delete(url, Some(&headers), payload).await
     }
 

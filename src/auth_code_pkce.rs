@@ -5,7 +5,7 @@ use crate::{
     http::{Form, HttpClient},
     join_scopes, params,
     sync::Mutex,
-    ClientResult, Config, Credentials, OAuth, Token,
+    ClientError, ClientResult, Config, Credentials, OAuth, Token,
 };
 
 use std::{collections::HashMap, sync::Arc};
@@ -92,9 +92,7 @@ impl OAuthClient for AuthCodePkceSpotify {
     async fn request_token(&self, code: &str) -> ClientResult<()> {
         log::info!("Requesting PKCE Auth Code token");
 
-        let verifier = self.verifier.as_ref().expect(
-            "Unknown code verifier. Try calling `AuthCodePkceSpotify::get_authorize_url` first or setting it yourself.",
-        );
+        let verifier = self.verifier.as_ref().ok_or(ClientError::MissingCodeVerifier)?;
 
         let mut data = Form::new();
         data.insert(params::CLIENT_ID, &self.creds.id);

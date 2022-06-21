@@ -80,7 +80,7 @@ mod test {
         };
 
         let spotify = ClientCredsSpotify::from_token(tok);
-        let headers = spotify.auth_headers().await;
+        let headers = spotify.auth_headers().await.unwrap();
         assert_eq!(
             headers.get("authorization"),
             Some(&"Bearer test-access_token".to_owned())

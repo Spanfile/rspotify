@@ -4,7 +4,7 @@ use crate::{
     http::{Form, HttpClient},
     join_scopes, params,
     sync::Mutex,
-    ClientResult, Config, Credentials, OAuth, Token,
+    ClientError, ClientResult, Config, Credentials, OAuth, Token,
 };
 
 use std::{collections::HashMap, sync::Arc};
@@ -101,10 +101,7 @@ impl BaseClient for AuthCodeSpotify {
                 data.insert(params::REFRESH_TOKEN, refresh_token);
                 data.insert(params::GRANT_TYPE, params::REFRESH_TOKEN);
 
-                let headers = self
-                    .creds
-                    .auth_headers()
-                    .expect("No client secret set in the credentials.");
+                let headers = self.creds.auth_headers().ok_or(ClientError::MissingClientSecret)?;
                 let mut token = self.fetch_access_token(&data, Some(&headers)).await?;
                 token.refresh_token = Some(refresh_token.to_string());
                 Ok(Some(token))
@@ -136,10 +133,7 @@ impl OAuthClient for AuthCodeSpotify {
         data.insert(params::SCOPE, &scopes);
         data.insert(params::STATE, &self.oauth.state);
 
-        let headers = self
-            .creds
-            .auth_headers()
-            .expect("No client secret set in the credentials.");
+        let headers = self.creds.auth_headers().ok_or(ClientError::MissingClientSecret)?;
 
         let token = self.fetch_access_token(&data, Some(&headers)).await?;
         *self.token.lock().await.unwrap() = Some(token);
