@@ -12,10 +12,12 @@ use crate::{
     ClientError, ClientResult, Config, Credentials, Token,
 };
 
-use std::{collections::HashMap, fmt, sync::Arc};
+use std::{collections::HashMap, fmt, sync::Arc, time::Duration};
 
 use chrono::Utc;
+use futures::Future;
 use maybe_async::maybe_async;
+use rspotify_http::HttpError;
 use serde_json::Value;
 
 /// This trait implements the basic endpoints from the Spotify API that may be
@@ -100,6 +102,58 @@ where
             .auth_headers())
     }
 
+    #[doc(hidden)]
+    async fn handle_errors<F, Fut>(&self, f: F) -> ClientResult<String>
+    where
+        F: Fn() -> Fut + Send + Sync,
+        Fut: Future<Output = ClientResult<String>> + Send,
+    {
+        loop {
+            let result = (f)().await;
+
+            if let Err(ClientError::Http(ref http_err)) = result {
+                if let HttpError::StatusCode(resp) = http_err.as_ref() {
+                    match resp.status().as_u16() {
+                        // unauthorized, the access token probably expired. check to make sure
+                        401 => {
+                            if let Some(www_authenticate) = resp
+                                .headers()
+                                .get("www-authenticate")
+                                .and_then(|header| header.to_str().ok())
+                            {
+                                if www_authenticate.contains("error=\"invalid_token\"") {
+                                    // yep, the token expired. refresh and retry
+
+                                    log::info!("Access token expired, refreshing and retrying call");
+                                    self.refresh_token().await?;
+                                    continue;
+                                }
+                            }
+                        }
+
+                        // we're being rate limited, wait the indicated amount of time and retry
+                        429 => {
+                            if let Some(retry_after_seconds) = resp
+                                .headers()
+                                .get("retry-after")
+                                .and_then(|header| header.to_str().ok())
+                                .and_then(|s| s.parse().ok())
+                            {
+                                log::info!("Hit a rate limit, waiting {} seconds and retrying", retry_after_seconds);
+                                tokio::time::sleep(Duration::from_secs(retry_after_seconds)).await;
+                                continue;
+                            }
+                        }
+
+                        _ => (),
+                    }
+                }
+            }
+
+            return result;
+        }
+    }
+
     // HTTP-related methods for the Spotify client. It wraps the basic HTTP
     // client with features needed of higher level.
     //
@@ -154,28 +208,28 @@ where
     #[inline]
     async fn endpoint_get(&self, url: &str, payload: &Query<'_>) -> ClientResult<String> {
         let headers = self.auth_headers().await?;
-        self.get(url, Some(&headers), payload).await
+        self.handle_errors(|| self.get(url, Some(&headers), payload)).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_post(&self, url: &str, payload: &Value) -> ClientResult<String> {
         let headers = self.auth_headers().await?;
-        self.post(url, Some(&headers), payload).await
+        self.handle_errors(|| self.post(url, Some(&headers), payload)).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_put(&self, url: &str, payload: &Value) -> ClientResult<String> {
         let headers = self.auth_headers().await?;
-        self.put(url, Some(&headers), payload).await
+        self.handle_errors(|| self.put(url, Some(&headers), payload)).await
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_delete(&self, url: &str, payload: &Value) -> ClientResult<String> {
         let headers = self.auth_headers().await?;
-        self.delete(url, Some(&headers), payload).await
+        self.handle_errors(|| self.delete(url, Some(&headers), payload)).await
     }
 
     /// Updates the cache file at the internal cache path.
