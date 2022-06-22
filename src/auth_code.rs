@@ -97,13 +97,20 @@ impl BaseClient for AuthCodeSpotify {
                 refresh_token: Some(refresh_token),
                 ..
             }) => {
+                log::debug!("Refetching access token");
+
                 let mut data = Form::new();
                 data.insert(params::REFRESH_TOKEN, refresh_token);
                 data.insert(params::GRANT_TYPE, params::REFRESH_TOKEN);
 
                 let headers = self.creds.auth_headers().ok_or(ClientError::MissingClientSecret)?;
                 let mut token = self.fetch_access_token(&data, Some(&headers)).await?;
-                token.refresh_token = Some(refresh_token.to_string());
+
+                if token.refresh_token.is_none() {
+                    token.refresh_token = Some(refresh_token.to_string());
+                }
+
+                log::debug!("New token: {:?}", token);
                 Ok(Some(token))
             }
             _ => Ok(None),

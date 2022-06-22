@@ -70,7 +70,7 @@ impl UreqClient {
             }
         }
 
-        log::info!("Making request {:?}", request);
+        log::debug!("Making request {:?}", request);
         // Converting errors from ureq into our custom error types
         match send_request(request) {
             Ok(response) => response.into_string()?,
