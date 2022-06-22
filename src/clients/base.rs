@@ -101,6 +101,11 @@ where
             .auth_headers())
     }
 
+    /// Given a result from an HTTP call, returns whether the call was successful.
+    ///
+    /// Handles the following cases:
+    /// - The API returning a 401 Unauthorized because the access token expired. Will refresh the token automatically.
+    /// - The API returning a 429 Too Many Requests. Will wait the indicated amount of time in the Retry-After header.
     #[doc(hidden)]
     async fn handle_errors(&self, result: &ClientResult<String>) -> ClientResult<bool> {
         if let Err(ClientError::Http(ref http_err)) = result {
