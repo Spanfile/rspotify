@@ -13,7 +13,7 @@ use serde::Deserialize;
 
 /// Converts a JSON response from Spotify into its model.
 pub(crate) fn convert_result<'a, T: Deserialize<'a>>(input: &'a str) -> ClientResult<T> {
-    serde_json::from_str::<T>(input).map_err(Into::into)
+    Ok(serde_json::from_str::<T>(input)?)
 }
 
 /// Append device ID to an API path.
