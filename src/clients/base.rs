@@ -15,7 +15,6 @@ use crate::{
 use std::{collections::HashMap, fmt, sync::Arc, time::Duration};
 
 use chrono::Utc;
-use futures::Future;
 use maybe_async::maybe_async;
 use rspotify_http::HttpError;
 use serde_json::Value;
@@ -103,55 +102,47 @@ where
     }
 
     #[doc(hidden)]
-    async fn handle_errors<F, Fut>(&self, f: F) -> ClientResult<String>
-    where
-        F: Fn() -> Fut + Send + Sync,
-        Fut: Future<Output = ClientResult<String>> + Send,
-    {
-        loop {
-            let result = (f)().await;
+    async fn handle_errors(&self, result: &ClientResult<String>) -> ClientResult<bool> {
+        if let Err(ClientError::Http(ref http_err)) = result {
+            if let HttpError::StatusCode(resp) = http_err.as_ref() {
+                match resp.status().as_u16() {
+                    // unauthorized, the access token probably expired. check to make sure
+                    401 => {
+                        if let Some(www_authenticate) = resp
+                            .headers()
+                            .get("www-authenticate")
+                            .and_then(|header| header.to_str().ok())
+                        {
+                            if www_authenticate.contains("error=\"invalid_token\"") {
+                                // yep, the token expired. refresh and retry
 
-            if let Err(ClientError::Http(ref http_err)) = result {
-                if let HttpError::StatusCode(resp) = http_err.as_ref() {
-                    match resp.status().as_u16() {
-                        // unauthorized, the access token probably expired. check to make sure
-                        401 => {
-                            if let Some(www_authenticate) = resp
-                                .headers()
-                                .get("www-authenticate")
-                                .and_then(|header| header.to_str().ok())
-                            {
-                                if www_authenticate.contains("error=\"invalid_token\"") {
-                                    // yep, the token expired. refresh and retry
-
-                                    log::info!("Access token expired, refreshing and retrying call");
-                                    self.refresh_token().await?;
-                                    continue;
-                                }
+                                log::info!("Access token expired, refreshing and retrying call");
+                                self.refresh_token().await?;
+                                return Ok(false);
                             }
                         }
-
-                        // we're being rate limited, wait the indicated amount of time and retry
-                        429 => {
-                            if let Some(retry_after_seconds) = resp
-                                .headers()
-                                .get("retry-after")
-                                .and_then(|header| header.to_str().ok())
-                                .and_then(|s| s.parse().ok())
-                            {
-                                log::info!("Hit a rate limit, waiting {} seconds and retrying", retry_after_seconds);
-                                tokio::time::sleep(Duration::from_secs(retry_after_seconds)).await;
-                                continue;
-                            }
-                        }
-
-                        _ => (),
                     }
+
+                    // we're being rate limited, wait the indicated amount of time and retry
+                    429 => {
+                        if let Some(retry_after_seconds) = resp
+                            .headers()
+                            .get("retry-after")
+                            .and_then(|header| header.to_str().ok())
+                            .and_then(|s| s.parse().ok())
+                        {
+                            log::info!("Hit a rate limit, waiting {} seconds and retrying", retry_after_seconds);
+                            tokio::time::sleep(Duration::from_secs(retry_after_seconds)).await;
+                            return Ok(false);
+                        }
+                    }
+
+                    _ => (),
                 }
             }
-
-            return result;
         }
+
+        Ok(true)
     }
 
     // HTTP-related methods for the Spotify client. It wraps the basic HTTP
@@ -207,29 +198,53 @@ where
     #[doc(hidden)]
     #[inline]
     async fn endpoint_get(&self, url: &str, payload: &Query<'_>) -> ClientResult<String> {
-        let headers = self.auth_headers().await?;
-        self.handle_errors(|| self.get(url, Some(&headers), payload)).await
+        loop {
+            let headers = self.auth_headers().await?;
+            let result = self.get(url, Some(&headers), payload).await;
+
+            if self.handle_errors(&result).await? {
+                return result;
+            }
+        }
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_post(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await?;
-        self.handle_errors(|| self.post(url, Some(&headers), payload)).await
+        loop {
+            let headers = self.auth_headers().await?;
+            let result = self.post(url, Some(&headers), payload).await;
+
+            if self.handle_errors(&result).await? {
+                return result;
+            }
+        }
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_put(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await?;
-        self.handle_errors(|| self.put(url, Some(&headers), payload)).await
+        loop {
+            let headers = self.auth_headers().await?;
+            let result = self.put(url, Some(&headers), payload).await;
+
+            if self.handle_errors(&result).await? {
+                return result;
+            }
+        }
     }
 
     #[doc(hidden)]
     #[inline]
     async fn endpoint_delete(&self, url: &str, payload: &Value) -> ClientResult<String> {
-        let headers = self.auth_headers().await?;
-        self.handle_errors(|| self.delete(url, Some(&headers), payload)).await
+        loop {
+            let headers = self.auth_headers().await?;
+            let result = self.delete(url, Some(&headers), payload).await;
+
+            if self.handle_errors(&result).await? {
+                return result;
+            }
+        }
     }
 
     /// Updates the cache file at the internal cache path.
